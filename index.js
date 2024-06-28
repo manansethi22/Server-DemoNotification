@@ -8,7 +8,7 @@ const pushTokens = new Set();
 
 app.use(express.json());
 
-// New endpoint to receive and store push tokens
+// Endpoint to receive and store push tokens
 app.post("/register-push-token", (req, res) => {
   const { token } = req.body;
 
@@ -24,16 +24,19 @@ app.post("/register-push-token", (req, res) => {
 app.post("/send-notification", async (req, res) => {
   try {
     const { token, title, body, data } = req.body;
+
     if (!Expo.isExpoPushToken(token)) {
       return res.status(400).json({ error: "Invalid Expo push token" });
     }
+
     const message = {
       to: token,
       sound: "default",
       title: title,
       body: body,
-      data: { route, params },
+      data: data, // Pass the data object containing target screen info
     };
+
     const chunks = expo.chunkPushNotifications([message]);
     for (let chunk of chunks) {
       try {
